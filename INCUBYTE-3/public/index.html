@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Shop Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 2rem 2.5rem 2.5rem 2.5rem;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #d97706;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        th,
+        td {
+            border: none;
+            padding: 12px 10px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f3f4f6;
+            color: #7c3aed;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        
+        tr:hover {
+            background: #fef3c7;
+        }
+        
+        input,
+        select {
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            outline: none;
+            font-size: 1rem;
+            margin: 0.2rem;
+            transition: border 0.2s;
+        }
+        
+        input:focus,
+        select:focus {
+            border: 1.5px solid #7c3aed;
+            background: #f3f4f6;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e42 100%);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 7px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.2rem;
+            box-shadow: 0 2px 6px rgba(251, 191, 36, 0.08);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            background: linear-gradient(90deg, #f59e42 0%, #fbbf24 100%);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+        }
+        
+        .actions button {
+            margin-right: 0.5rem;
+            padding: 5px 12px;
+            font-size: 0.95rem;
+        }
+        
+        .auth-section {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .auth-section form {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .error {
+            color: #dc2626;
+            margin-top: 0.5rem;
+        }
+        
+        .success {
+            color: #059669;
+            margin-top: 0.5rem;
+        }
+        
+        #user-info {
+            font-weight: 500;
+            color: #7c3aed;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem 0.5rem;
+            }
+            th,
+            td {
+                font-size: 0.95rem;
+                padding: 8px 4px;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+            .auth-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Sweet Shop Management</h1>
+
+        <div class="auth-section">
+            <div id="auth-forms">
+                <form id="loginForm">
+                    <strong>Login:</strong>
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <form id="registerForm">
+                    <strong>Register:</strong>
+                    <input type="text" id="registerUsername" placeholder="Username" required>
+                    <input type="password" id="registerPassword" placeholder="Password" required>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+            <div id="user-info" class="hidden">
+                Logged in as <span id="currentUser"></span>
+                <button onclick="logout()">Logout</button>
+            </div>
+            <div id="authMsg"></div>
+        </div>
+
+        <form id="addForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="number" id="price" placeholder="Price" required>
+            <input type="number" id="quantity" placeholder="Quantity" required>
+            <input type="text" id="category" placeholder="Category" required>
+            <button type="submit">Add Sweet</button>
+        </form>
+
+        <div style="margin-top:1rem;">
+            <input type="text" id="search" placeholder="Search by name">
+            <button onclick="searchSweets()">Search</button>
+            <select id="sortField">
+        <option value="name">Name</option>
+        <option value="price">Price</option>
+        <option value="quantity">Quantity</option>
+        <option value="category">Category</option>
+      </select>
+            <button onclick="sortSweets()">Sort</button>
+            <button onclick="loadSweets()">Show All</button>
+        </div>
+
+        <table id="sweetsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const api = 'http://localhost:3000/sweets';
+        const authApi = 'http://localhost:3000/auth';
+        let editingId = null;
+        let token = localStorage.getItem('token') || '';
+        let currentUser = localStorage.getItem('user') || '';
+
+        function setAuthUI() {
+            if (token) {
+                document.getElementById('auth-forms').classList.add('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('currentUser').textContent = currentUser;
+                document.getElementById('addForm').style.display = '';
+            } else {
+                document.getElementById('auth-forms').classList.remove('hidden');
+                document.getElementById('user-info').classList.add('hidden');
+                document.getElementById('addForm').style.display = 'none';
+            }
+        }
+
+        setAuthUI();
+
+        function showMsg(msg, isError = false) {
+            const el = document.getElementById('authMsg');
+            el.textContent = msg;
+            el.className = isError ? 'error' : 'success';
+            setTimeout(() => {
+                el.textContent = '';
+            }, 3000);
+        }
+
+        document.getElementById('loginForm').onsubmit = async(e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const res = await fetch(`${authApi}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                token = data.token;
+                currentUser = username;
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', username);
+                setAuthUI();
+                showMsg('Login successful');
+            } else {
+                showMsg('Login failed', true);
+            }
+            e.target.reset();
+        };
+
+        document.getElementById('registerForm').onsubmit = async(e) => {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const res = await fetch(`${authApi}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            });
+            if (res.ok) {
+                showMsg('Registration successful! Please login.');
+            } else {
+                showMsg('Registration failed', true);
+            }
+            e.target.reset();
+        };
+
+        window.logout = function() {
+            token = '';
+            currentUser = '';
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setAuthUI();
+            showMsg('Logged out');
+        };
+
+        async function loadSweets() {
+            const res = await fetch(api);
+            const sweets = await res.json();
+            renderTable(sweets);
+        }
+
+        window.searchSweets = async function() {
+            const q = document.getElementById('search').value;
+            const res = await fetch(`${api}/search?q=${encodeURIComponent(q)}`);
+            const sweets = await res.json();
+            renderTable(sweets);
+        };
+
+        window.sortSweets = async function() {
+            const field = document.getElementById('sortField').value;
+            const res = await fetch(`${api}/sort?field=${field}`);
+            const sweets = await res.json();
+            renderTable(sweets);
+        };
+
+        document.getElementById('addForm').onsubmit = async(e) => {
+            e.preventDefault();
+            if (!token) {
+                showMsg('You must be logged in to add sweets.', true);
+                return;
+            }
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const quantity = document.getElementById('quantity').value;
+            const category = document.getElementById('category').value;
+            let url = api;
+            let method = 'POST';
+            if (editingId) {
+                url = `${api}/${editingId}`;
+                method = 'PUT';
+            }
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name,
+                    price,
+                    quantity,
+                    category
+                })
+            });
+            if (res.ok) {
+                showMsg(editingId ? 'Sweet updated!' : 'Sweet added!');
+                editingId = null;
+                e.target.reset();
+                loadSweets();
+            } else {
+                showMsg('Action failed. Are you logged in?', true);
+            }
+        };
+
+        function renderTable(sweets) {
+            const tbody = document.querySelector('#sweetsTable tbody');
+            tbody.innerHTML = '';
+            sweets.forEach(sweet => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+        <td>${sweet.id}</td>
+        <td>${sweet.name}</td>
+        <td>${sweet.price}</td>
+        <td>${sweet.quantity}</td>
+        <td>${sweet.category}</td>
+        <td class="actions">
+          <button onclick="editSweet(${sweet.id}, '${sweet.name}', ${sweet.price}, ${sweet.quantity}, '${sweet.category}')">Edit</button>
+          <button onclick="deleteSweet(${sweet.id})">Delete</button>
+        </td>
+      `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.editSweet = function(id, name, price, quantity, category) {
+            document.getElementById('name').value = name;
+            document.getElementById('price').value = price;
+            document.getElementById('quantity').value = quantity;
+            document.getElementById('category').value = category;
+            editingId = id;
+        };
+
+        window.deleteSweet = async function(id) {
+            if (!token) {
+                showMsg('You must be logged in to delete sweets.', true);
+                return;
+            }
+            await fetch(`${api}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            loadSweets();
+        };
+
+        // Initial load
+        loadSweets();
+    </script>
+</body>
+
+</html>
